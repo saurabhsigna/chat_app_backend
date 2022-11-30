@@ -1,0 +1,54 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullName     String
+  email        String    @unique
+  createdAt    DateTime  @default(now()) @map("createdAt")
+  password     String?
+  provider     Provider
+  imgUri       String?
+  sentMessages Message[] @relation("Sender") // Added opposite relation field
+  Chat         Chat?     @relation(fields: [chatId], references: [id])
+  chatId       String?   @db.ObjectId
+}
+
+model Chat {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  users     User[]
+  createdAt DateTime  @default(now()) @map("createdAt")
+  messages  Message[]
+}
+
+model Message {
+  id      String        @id @default(auto()) @map("_id") @db.ObjectId
+  status  messageStatus @default(sending)
+  content String
+
+  senderId  String   @db.ObjectId
+  timeStamp DateTime @default(now()) @map("createdAt")
+  sender    User     @relation(name: "Sender", fields: [senderId], references: [id])
+  Chat      Chat?    @relation(fields: [chatId], references: [id])
+  chatId    String?  @db.ObjectId
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+}
+
+enum messageStatus {
+  sent
+  notsent
+  sending
+}
