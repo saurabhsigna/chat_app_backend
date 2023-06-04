@@ -58,7 +58,9 @@ const registerController = async (req, res) => {
 };
 
 const loginController = (req, res, next) => {
+  
   passport.authenticate("local", (err, user, info) => {
+    
     if (err) {
       console.error(err);
       return res

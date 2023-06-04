@@ -10,8 +10,27 @@ const getUser = async (req, res) => {
         id: userId,
       },
       select: {
-        chat: true,
-        
+        id: true,
+        chats: {
+          select: {
+            users: {
+              select: {
+                fullName: true,
+                id: true,
+              },
+            },
+            name: true,
+            id: true,
+            messages: {
+              take: 1,
+              orderBy: { timeStamp: "desc" },
+              select: {
+                id: true,
+                content: true,
+              },
+            },
+          },
+        },
       },
     });
     res.json({ user });
