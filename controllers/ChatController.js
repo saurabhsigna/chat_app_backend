@@ -5,16 +5,26 @@ const prisma = new PrismaClient();
 const createChat = async (req, res) => {
   let { receiverId } = req.body;
   let senderId = req.user.id;
- 
-  const newChat = await prisma.chat.create({
-    data: {
-      name: "billboard",
-      users: {
-        connect: [{ id: senderId }, { id: receiverId }],
+
+  try {
+    if (!receiverId) {
+      throw new Error("Receiver ID is required");
+    }
+
+    const newChat = await prisma.chat.create({
+      data: {
+        name: "billboard",
+        users: {
+          connect: [{ id: senderId }, { id: receiverId }],
+        },
       },
-    },
-  });
-  res.json({ message: newChat });
+    });
+
+    res.json({ message: newChat });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
 };
 
 const getChat = async (req, res) => {
@@ -22,6 +32,10 @@ const getChat = async (req, res) => {
   const userId = req.user.id;
 
   try {
+    if (!chatId) {
+      throw new Error("Chat ID is required");
+    }
+
     const chat = await prisma.chat.findUnique({
       where: { id: chatId },
       select: {
@@ -39,6 +53,9 @@ const getChat = async (req, res) => {
             chatId: true,
             content: true,
             timeStamp: true,
+          },
+          orderBy: {
+            timeStamp: "asc",
           },
         },
       },

@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const csurf = require("csurf");
 const cors = require("cors");
 const authRoutes = require("./routes/GoogleAuthRouter");
+const refreshTokenRoutes = require("./routes/RefreshTokenRouter");
 const userRoutes = require("./routes/UserRouter");
 const chatRoutes = require("./routes/ChatRouter");
 const chatMessageRoutes = require("./routes/ChatMessagesRouter");
@@ -13,12 +14,13 @@ const localRoutes = require("./routes/LocalAuthRouter");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 const app = express();
+dotenv.config();
 
 const csrfProtection = csurf({ cookie: true });
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(csrfProtection);
+// app.use(csrfProtection);
 
 // Set up Helmet middleware for security headers
 app.use(helmet());
@@ -29,7 +31,6 @@ app.use(
     credentials: true,
   })
 );
-dotenv.config();
 
 // Set up session middleware
 app.use(
@@ -49,10 +50,10 @@ app.use(passport.session());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  const csrfToken = req.csrfToken();
-  res.cookie("XSRF-TOKEN", csrfToken);
+  // const csrfToken = req.csrfToken();
+  // res.cookie("XSRF-TOKEN", csrfToken);
 
-  res.send("testing 6 ");
+  res.send("testing 6 " + process.env.FRONTEND_URI);
 });
 
 app.use("/", chatRoutes);
@@ -76,7 +77,7 @@ app.use("/users", userRoutes);
 app.use("/", chatMessageRoutes);
 app.use("/", localRoutes);
 app.use("/auth", authRoutes);
-
+app.use("/", refreshTokenRoutes);
 // Start the server
 const server = app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
@@ -86,12 +87,12 @@ const server = app.listen(process.env.PORT, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "https://8nuqhr-3000.csb.app",
+    origin: process.env.FRONTEND_URI,
   },
 });
 
 io.on("connection", (socket) => {
-socket.on("connected",()=>console.log("connected to socket.io"))
+  socket.on("connected", () => console.log("connected to socket.io"));
 
   socket.on("newMessage", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
