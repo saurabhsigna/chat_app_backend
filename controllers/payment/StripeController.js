@@ -73,7 +73,7 @@ const stripePayment = async (req, res) => {
 const makeEvent = async (req, res) => {
   try {
     stripe.webhookEndpoints.create({
-      url: "https://ogd2wk-4242.csb.app/",
+      url: "https://seal-app-womin.ondigitalocean.app/webhook",
       enabled_events: ["payment_intent.succeeded"],
     });
     res.json({ message: "sent" });
