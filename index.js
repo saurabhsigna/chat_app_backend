@@ -17,18 +17,16 @@ const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 const app = express();
 dotenv.config();
-const stripe = require("stripe")(
-  "sk_test_51NNZyySEvXtIALrI8j7hK6xUnpbOPWS1wvTDXwU2eUyWQczltC3RYLTnSofNNMgvYiTbWBqkqr84tSEkqR9lN4MN00EnoW9Lw2"
-);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const csrfProtection = csurf({ cookie: true });
+// const csrfProtection = csurf({ cookie: true });
 
 app.use(express.json());
 app.use(cookieParser());
 // app.use(csrfProtection);
 
 // Set up Helmet middleware for security headers
-app.use(helmet());
+// app.use(helmet());
 
 app.use(
   cors({
