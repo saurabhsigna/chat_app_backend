@@ -13,12 +13,14 @@ model User {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   fullName     String
   email        String    @unique
+  mobileNumber      String   @unique
   createdAt    DateTime  @default(now()) @map("createdAt")
   password     String?
   provider     Provider
   imgUri       String?
   sentMessages Message[] @relation("Sender") // Added opposite relation field
   chatIds String[]   @db.ObjectId
+  purchases Purchase[]
   chats  Chat[] @relation(fields: [chatIds], references: [id])
 }
 
@@ -42,7 +44,6 @@ model Message {
   Chat      Chat?    @relation(fields: [chatId], references: [id])
   chatId    String?  @db.ObjectId
 }
-
 enum Provider {
   LOCAL
   GOOGLE
@@ -52,4 +53,33 @@ enum messageStatus {
   sent
   notsent
   sending
+}
+
+
+
+model Product {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  stock        Int   
+  createdAt    DateTime  @default(now()) @map("createdAt")
+  description     String?
+  price     Int
+  imgUri       String?
+  category  String
+    purchases   Purchase[]
+}
+
+
+model Purchase {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now()) @map("createdAt")
+  price     Int
+  quantity  Int
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  productId String
+  title  String?
+  description String?
+  image String?
 }

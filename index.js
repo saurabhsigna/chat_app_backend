@@ -9,12 +9,17 @@ const authRoutes = require("./routes/GoogleAuthRouter");
 const refreshTokenRoutes = require("./routes/RefreshTokenRouter");
 const userRoutes = require("./routes/UserRouter");
 const chatRoutes = require("./routes/ChatRouter");
+const stripePaymentRoutes = require("./routes/StripePaymentRouter");
 const chatMessageRoutes = require("./routes/ChatMessagesRouter");
 const localRoutes = require("./routes/LocalAuthRouter");
+const purchaseRoutes = require("./routes/PurchaseRouter");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 const app = express();
 dotenv.config();
+const stripe = require("stripe")(
+  "sk_test_51NNZyySEvXtIALrI8j7hK6xUnpbOPWS1wvTDXwU2eUyWQczltC3RYLTnSofNNMgvYiTbWBqkqr84tSEkqR9lN4MN00EnoW9Lw2"
+);
 
 const csrfProtection = csurf({ cookie: true });
 
@@ -48,6 +53,7 @@ app.use(passport.session());
 // Configure Passport.js with Google OAuth2 strategy
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   // const csrfToken = req.csrfToken();
@@ -77,7 +83,44 @@ app.use("/users", userRoutes);
 app.use("/", chatMessageRoutes);
 app.use("/", localRoutes);
 app.use("/auth", authRoutes);
+app.use("/", stripePaymentRoutes);
 app.use("/", refreshTokenRoutes);
+app.use("/purchase", purchaseRoutes);
+
+const endpointSecret = process.env.WEBHOOK_SECRET;
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (request, response) => {
+    const sig = request.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "checkout.session.async_payment_succeeded":
+        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+        console.log(checkoutSessionAsyncPaymentSucceeded);
+        console.log("maje karoo");
+        // Then define and call a function to handle the event checkout.session.async_payment_succeeded
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    response.sendStatus(200);
+  }
+);
 // Start the server
 const server = app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);

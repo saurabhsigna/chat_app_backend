@@ -3,11 +3,12 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const createChat = async (req, res) => {
+
   let { receiverId } = req.body;
   let senderId = req.user.id;
-
   try {
     if (!receiverId) {
+
       throw new Error("Receiver ID is required");
     }
 
@@ -22,7 +23,6 @@ const createChat = async (req, res) => {
 
     res.json({ message: newChat });
   } catch (error) {
-    console.error(error);
     res.status(400).json({ error: error.message });
   }
 };
