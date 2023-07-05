@@ -21,6 +21,38 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // const csrfProtection = csurf({ cookie: true });
 
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (request, response) => {
+    const sig = request.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "checkout.session.async_payment_succeeded":
+        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+        console.log(checkoutSessionAsyncPaymentSucceeded);
+        console.log("maje karoo");
+        // Then define and call a function to handle the event checkout.session.async_payment_succeeded
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    response.sendStatus(200);
+  }
+);
 app.use(express.json());
 app.use(cookieParser());
 // app.use(csrfProtection);
@@ -87,38 +119,6 @@ app.use("/purchase", purchaseRoutes);
 
 const endpointSecret = process.env.WEBHOOK_SECRET;
 
-app.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  (request, response) => {
-    const sig = request.headers["stripe-signature"];
-
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-    } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case "checkout.session.async_payment_succeeded":
-        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
-        console.log(checkoutSessionAsyncPaymentSucceeded);
-        console.log("maje karoo");
-        // Then define and call a function to handle the event checkout.session.async_payment_succeeded
-        break;
-      // ... handle other event types
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    // Return a 200 response to acknowledge receipt of the event
-    response.sendStatus(200);
-  }
-);
 // Start the server
 const server = app.listen(process.env.PORT, () => {
   console.log("Server is running on port " + process.env.PORT);
