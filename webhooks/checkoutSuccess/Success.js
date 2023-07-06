@@ -57,6 +57,4 @@ const Success = async (checkoutId) => {
     );
   }
 };
-module.exports = {
-  Success,
-};
+module.exports = Success;
