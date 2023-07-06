@@ -87,14 +87,15 @@ const stripePayment = async (req, res) => {
       cancel_url: `https://n2tcty-3000.csb.app/testing/orders/list`,
     });
 
-    // await prisma.payments.create({
-    //   data: {
-    //     checkout_id: session.id,
-    //     status: "PENDING",
-    //     items: items,
-    //     user_id: userId,
-    //   },
-    // });
+    await prisma.payments.create({
+      data: {
+        checkout_id: session.id,
+        status: "PENDING",
+        items: items,
+        user_id: userId,
+      },
+    });
+
     res.json({ message: session.url });
   } catch (error) {
     console.error("Error in payment:", error);
