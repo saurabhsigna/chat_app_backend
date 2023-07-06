@@ -13,7 +13,7 @@ model User {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   fullName     String
   email        String    @unique
-  mobileNumber      String   @unique
+  mobileNumber  String?   @unique
   createdAt    DateTime  @default(now()) @map("createdAt")
   password     String?
   provider     Provider
