@@ -22,6 +22,7 @@ const WebhookController = async (req, res) => {
     case "checkout.session.completed":
       const checkoutSession = event.data.object;
       try {
+        console.log(checkoutSession);
         await Success(checkoutSession.id);
         console.log(
           "Success: Payment processed successfully for checkout session",
