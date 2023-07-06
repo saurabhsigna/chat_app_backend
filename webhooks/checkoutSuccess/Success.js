@@ -51,10 +51,7 @@ const Success = async (checkoutId) => {
       });
     }
   } catch (error) {
-    throw new Error(
-      "error is in webhook ke success field me : ",
-      error.message
-    );
+    throw new Error("error is in webhook ke success field me : ", error);
   }
 };
 module.exports = Success;
