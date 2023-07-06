@@ -15,9 +15,33 @@ const getProductById = async (id) => {
   }
 };
 
+const shippingOptions = [
+  {
+    shipping_rate_data: {
+      type: "fixed_amount",
+      fixed_amount: {
+        amount: 15 * 100,
+        currency: "inr",
+      },
+      display_name: "Ultra Fast Delivery",
+      delivery_estimate: {
+        minimum: {
+          unit: "hour",
+          value: 2,
+        },
+        maximum: {
+          unit: "hour",
+          value: 5,
+        },
+      },
+    },
+  },
+];
+
 const stripePayment = async (req, res) => {
   try {
     let { items } = req.body;
+    let userId = req.user.id;
 
     if (!Array.isArray(items)) {
       throw new Error("Invalid items format. Expected an array.");
@@ -35,8 +59,6 @@ const stripePayment = async (req, res) => {
         "Invalid items format. Each item should have 'pid' and 'quantity' properties."
       );
     }
-
-    let userId = req.user.id;
 
     const lineItemsPromises = items.map((item) =>
       getProductById(item.pid).then((storeItem) => {
@@ -59,11 +81,21 @@ const stripePayment = async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
+      shipping_options: shippingOptions,
       line_items: lineItems,
       success_url: `https://n2tcty-3000.csb.app/testing/orders/success`,
       cancel_url: `https://n2tcty-3000.csb.app/testing/orders/list`,
     });
-    res.json({ url: session });
+
+    await prisma.payments.create({
+      data: {
+        checkout_id: session.url.id,
+        status: "PENDING",
+        items: items,
+        user_id: userId,
+      },
+    });
+    res.json({ url: session.url.url });
   } catch (error) {
     console.error("Error in payment:", error);
     res.status(500).json({ error: "Internal server error" });

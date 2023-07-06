@@ -83,3 +83,17 @@ model Purchase {
   description String?
   image String?
 }
+
+model Payments {
+id String  @id @default(auto()) @map("_id") @db.ObjectId
+ createdAt DateTime @default(now()) @map("createdAt")
+checkout_id String @unique
+user_id String @unique
+items  Json[]
+status PaymentStatus
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+}
