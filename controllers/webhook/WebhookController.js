@@ -1,5 +1,7 @@
 const Success = require("../../webhooks/checkoutSuccess/Success");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const WebhookController = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
