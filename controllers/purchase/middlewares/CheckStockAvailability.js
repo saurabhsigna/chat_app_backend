@@ -1,4 +1,5 @@
-
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const checkStockAvailability = async (req, res, next) => {
   const productIds = req.items.map((item) => item.pid);
 
@@ -38,3 +39,5 @@ const checkStockAvailability = async (req, res, next) => {
   req.productsMap = productsMap;
   next();
 };
+
+module.exports = checkStockAvailability;

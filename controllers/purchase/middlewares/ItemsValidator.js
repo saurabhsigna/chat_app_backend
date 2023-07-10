@@ -11,3 +11,4 @@ const checkItemsArray = (req, res, next) => {
   req.items = items;
   next();
 };
+module.exports = checkItemsArray;

@@ -64,9 +64,11 @@ model Product {
   createdAt    DateTime  @default(now()) @map("createdAt")
   description     String?
   price     Int
-  imgUri       String?
+  imgUri       String[]
   category  String
     purchases   Purchase[]
+    
+    
 }
 
 
