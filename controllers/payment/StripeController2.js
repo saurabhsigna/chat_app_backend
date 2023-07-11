@@ -38,7 +38,7 @@ const stripePayment = async (req, res) => {
           currency: "inr",
           product_data: {
             name: storeItem.name,
-            images: [storeItem.imgUri],
+            images: [storeItem.imgUri[0]],
           },
           unit_amount: storeItem.price * 100,
         },
@@ -65,7 +65,6 @@ const stripePayment = async (req, res) => {
         user_id: userId,
       },
     });
-
 
     res.json({ message: session.url });
   } catch (error) {

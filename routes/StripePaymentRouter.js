@@ -12,15 +12,15 @@ router.get(
   stripePaymentController.makeEvent
 );
 
-// POST / users;
-router.post(
-  "/stripe-checkout",
-  passport.authenticate("jwt", { session: false }),
-  stripePaymentController.stripePayment
-);
+// // POST / users;
+// router.post(
+//   "/stripe-checkout",
+//   passport.authenticate("jwt", { session: false }),
+//   stripePaymentController.stripePayment
+// );
 
 router.post(
-  "/stripe-checkout2",
+  "/stripe-checkout",
   passport.authenticate("jwt", { session: false }),
   isItemValid,
   checkStockAvailable,

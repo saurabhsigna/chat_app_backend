@@ -14,6 +14,8 @@ const chatMessageRoutes = require("./routes/ChatMessagesRouter");
 const webhookRoutes = require("./routes/WebhookRouter");
 const localRoutes = require("./routes/LocalAuthRouter");
 const purchaseRoutes = require("./routes/PurchaseRouter");
+const cartRoutes = require("./routes/CartRouter");
+const productRoutes = require("./routes/ProductsRouter");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 
@@ -88,6 +90,9 @@ app.use("/auth", authRoutes);
 app.use("/", stripePaymentRoutes);
 app.use("/", refreshTokenRoutes);
 app.use("/purchase", purchaseRoutes);
+app.use("/", productRoutes);
+app.use("/", cartRoutes);
+
 
 const endpointSecret = process.env.WEBHOOK_SECRET;
 
